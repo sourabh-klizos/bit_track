@@ -1,15 +1,13 @@
-
-
 from setuptools import setup, find_packages
 
 setup(
     name="bit_track",
     version="0.1.0",
-    packages=find_packages(),
+    packages=find_packages(),  # Auto-detects 'bit_track' package
     install_requires=[],
     entry_points={
         "console_scripts": [
-            "bit_track=main:main",  # Maps `bit_track` CLI command to `main()`
+            "bit_track=bit_track:main",  # Correctly points to bit_track/main.py
         ],
     },
     author="Your Name",
@@ -20,6 +18,3 @@ setup(
     ],
     python_requires=">=3.6",
 )
-
-
-# pip install --editable .
