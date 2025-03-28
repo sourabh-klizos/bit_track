@@ -5,7 +5,7 @@ import hashlib
 import zlib
 
 
-async def create_blob(file_path:str) -> str:
+def create_blob(file_path:str) -> str:
 
     current_working_dir = Path.cwd()
     file_exists = current_working_dir  / file_path

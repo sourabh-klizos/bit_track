@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 
-async def call_recursive():
+def call_recursive():
 
     ignores = []
 
@@ -29,7 +29,7 @@ async def call_recursive():
         if not file.name in   ignores:
             print(file.name)
             print(ignores)
-            await create_blob(file)
+            create_blob(file)
 
 
 

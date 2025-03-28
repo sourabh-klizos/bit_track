@@ -3,8 +3,7 @@ import sys
 import zlib
 
 
-
-async def read_blob(blob_hash):
+def read_blob(blob_hash):
     current_working_dir = Path.cwd()
 
     blob_dir = current_working_dir / ".bit_track" / "objects" / blob_hash[:2]

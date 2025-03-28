@@ -1,0 +1,2 @@
+[console_scripts]
+bit_track = main:main

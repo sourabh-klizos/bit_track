@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 
-async def init_bit_track():
+def init_bit_track():
     current_dir = Path.cwd()
     bit_track = ".bit_track"
 

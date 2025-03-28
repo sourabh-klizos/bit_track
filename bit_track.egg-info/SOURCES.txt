@@ -1,0 +1,7 @@
+README.md
+setup.py
+bit_track.egg-info/PKG-INFO
+bit_track.egg-info/SOURCES.txt
+bit_track.egg-info/dependency_links.txt
+bit_track.egg-info/entry_points.txt
+bit_track.egg-info/top_level.txt

@@ -11,7 +11,7 @@ from utils.add import call_recursive
 
 
 
-async def main():
+def main():
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers(dest="commands")
 
@@ -31,13 +31,13 @@ async def main():
 
 
     if args.commands == "init":
-        await init_bit_track()
+        init_bit_track()
     elif args.commands == "blob":
-        await create_blob("test.txt")
+        create_blob("test.txt")
     elif args.commands == "cat-file" :
-        await read_blob(args.p)
+        read_blob(args.p)
     elif args.commands == "add" :
-        await call_recursive()
+        call_recursive()
 
 
 
@@ -50,7 +50,7 @@ async def main():
 
 if __name__ == "__main__":
 
-    asyncio.run(main())
+    main()
 
 
     
