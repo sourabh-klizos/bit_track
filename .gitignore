@@ -1,4 +1,2 @@
-venv
-
-.pyc*
-__pycache__/
+venv/
+bit_track.egg-info/
