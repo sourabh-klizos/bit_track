@@ -5,7 +5,7 @@ import hashlib
 import zlib
 from bit_track.bit_ignore import BitIgnore
 from bit_track.bit_track_repository import BitTrackRepository
-
+from bit_track.staging import BitTrackStaging
 from bit_track.utils.file_handler import FileHandler
 
 
@@ -35,32 +35,49 @@ class ObjectManager:
         obj_dir.mkdir(parents=True, exist_ok=True)
         obj_file = obj_dir / object_id[2:]
 
+        
+
         if not obj_file.exists():# not exists in dir 
             #check in index
+
             index_path = BitTrackRepository.index_file
+            content = FileHandler.read_file(index_path)
+            
+            
 
             content = FileHandler.read_file(index_path)
-            print(content,"=======================================================")
+            # print("=======================================================")
             print(content)
-            print(content,"=======================================================")
+            # print("=======================================================")
 
             if obj_type == "tree":
                 with obj_file.open("wb") as f:
                     f.write(compressed_data)
                     return  object_id
+                
+            # if not content:
+            #     print("Nothing to commit ")
+            #     return
                  
 
-            if not object_id in content:
-                return
+            if  object_id in content:
+                with obj_file.open("wb") as f:
+                    f.write(compressed_data)
+                return  object_id
 
-            with obj_file.open("wb") as f:
-                f.write(compressed_data)
-        return object_id
+        #     with obj_file.open("wb") as f:
+        #         f.write(compressed_data)
+        # return object_id
+        return None
 
     @staticmethod
     def create_blob(file_path: str) -> str:
         """Create a blob object for a file and store it."""
         try:
+            
+            # index_path = BitTrackRepository.index_file
+            # content = FileHandler.read_file(index_path)
+
             file_path = Path(file_path)
             if not file_path.is_file():
                 raise FileNotFoundError(f"Error: {file_path} is not a valid file.")
@@ -111,6 +128,12 @@ class ObjectManager:
         tree_data = b"".join(entries)
         tree_object_id = ObjectManager.write_object(tree_data, "tree")
         sys.stdout.write(f"Tree created: {directory} -> {tree_object_id}\n")
+        ## clear index file
+        BitTrackStaging.clear_staging()
+
+        
+
+        
         return tree_object_id
 
     @staticmethod

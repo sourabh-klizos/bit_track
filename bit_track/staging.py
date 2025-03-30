@@ -37,6 +37,8 @@ class BitTrackStaging:
         index_file = BitTrackStaging.INDEX_FILE
         index_entries = {}
 
+        hash_ids = list()
+
 
         repo_root = BitTrackStaging.BIT_TRACK_DIR.parent
         absolute_path = Path(file_path).resolve()
@@ -59,6 +61,7 @@ class BitTrackStaging:
                         for line in decompressed_data.splitlines():
                             mode, obj_id, path = line.strip().split(" ", 2)
                             index_entries[path] = (mode, obj_id)  # Store full relative path
+                            hash_ids.append(obj_id)
                     except zlib.error:
                         sys.stdout.write("Error: Corrupted index file.\n")
                         return
@@ -70,6 +73,30 @@ class BitTrackStaging:
         # Prepare compressed data
         index_content = "\n".join(f"{mode} {obj_id} {path}" for path, (mode, obj_id) in index_entries.items())
         compressed_content = zlib.compress(index_content.encode())
+
+        # for path, (mode, obj_id) in index_entries.items():
+        # # Check if object is already in hash_ids
+        #     if obj_id in hash_ids:
+        #         continue
+        #     obj_dir = BitTrackStaging.OBJECTS_DIR
+        #     # Check if object already exists in .bit_track/objects/XX/YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+        #     obj_path = obj_dir / obj_id[:2] / obj_id[2:]
+        #     if obj_path.exists():
+        #         continue
+
+        # # If not in hash_ids and doesn't exist in objects, add it to index
+        #     index_content = "\n".join(f"{mode} {obj_id} {path}")
+
+        #     compressed_content = zlib.compress(index_content.encode())
+
+        #     with index_file.open("wb") as f:
+        #         f.write(compressed_content)
+
+
+
+
+
+
 
         # Write back compressed index
         with index_file.open("wb") as f:
