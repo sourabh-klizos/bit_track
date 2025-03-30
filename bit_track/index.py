@@ -68,7 +68,7 @@ class BitTrackAdd:
             with file_path.open("rb") as file:
                 content = file.read()
 
-            object_id = BitTrackAdd.write_object(content,file_path.name ,"blob")
+            object_id = BitTrackAdd.write_object(content,file_path ,"blob")
             # sys.stdout.write(f"Blob created: {file_path} -> {object_id}\n")
             return object_id
         except Exception as e:

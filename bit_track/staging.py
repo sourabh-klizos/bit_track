@@ -28,85 +28,6 @@ class BitTrackStaging:
 
  
 
-#####################################################
-    # @staticmethod
-    # def update_index(file_name: str, object_id: str):
-    #     """Update the index file with the filename and its object hash."""
-    #     BitTrackStaging.check_repo()
-    #     index_file = BitTrackStaging.INDEX_FILE
-    #     index_entries = {}
-
-    #     # Read existing index
-    #     if index_file.exists():
-    #         with index_file.open("rb") as f:  # Read in binary mode
-    #             compressed_data = f.read()
-    #             if compressed_data:
-    #                 try:
-    #                     decompressed_data = zlib.decompress(compressed_data).decode()
-    #                     for line in decompressed_data.splitlines():
-    #                         mode, obj_id, path = line.strip().split(" ", 2)
-    #                         index_entries[path] = (mode, obj_id)
-    #                 except zlib.error:
-    #                     sys.stdout.write("Error: Corrupted index file.\n")
-    #                     return
-
-    #     # Update index with new file
-    #     index_entries[file_name] = ("100644", object_id)
-
-    #     # Prepare compressed data
-    #     index_content = "\n".join(f"{mode} {obj_id} {path}" for path, (mode, obj_id) in index_entries.items())
-    #     compressed_content = zlib.compress(index_content.encode())
-
-    #     # Write back compressed index
-    #     with index_file.open("wb") as f:  # Write in binary mode
-    #         f.write(compressed_content)
-
-        # sys.stdout.write(f"File '{file_name}' staged successfully.\n")
-
-
-    # @staticmethod
-    # def update_index(file_path: str, object_id: str):
-    #     """Update the index file with the full relative path and object hash."""
-    #     BitTrackStaging.check_repo()
-    #     index_file = BitTrackStaging.INDEX_FILE
-    #     index_entries = {}
-
-    #     # Normalize path (store relative path from repo root)
-    #     repo_root = BitTrackStaging.BIT_TRACK_DIR.parent
-    #     relative_path = os.path.relpath(file_path, repo_root)  # FIXED: No ValueError
-
-    #     print(f"file_path: {file_path}")  # Debugging
-    #     print(f"repo_root: {repo_root}")  # Debugging
-    #     print(f"relative_path: {relative_path}")  # Debugging
-
-    #     # Read existing index
-    #     if index_file.exists():
-    #         with index_file.open("rb") as f:  # Read in binary mode
-    #             compressed_data = f.read()
-    #             if compressed_data:
-    #                 try:
-    #                     decompressed_data = zlib.decompress(compressed_data).decode()
-    #                     for line in decompressed_data.splitlines():
-    #                         mode, obj_id, path = line.strip().split(" ", 2)
-    #                         index_entries[path] = (mode, obj_id)  # Key is now full relative path
-    #                 except zlib.error:
-    #                     sys.stdout.write("Error: Corrupted index file.\n")
-    #                     return
-
-    #     # Update index with new file (store full relative path)
-    #     index_entries[relative_path] = ("100644", object_id)
-
-    #     # Prepare compressed data
-    #     index_content = "\n".join(f"{mode} {obj_id} {path}" for path, (mode, obj_id) in index_entries.items())
-    #     compressed_content = zlib.compress(index_content.encode())
-
-    #     # Write back compressed index
-    #     with index_file.open("wb") as f:  # Write in binary mode
-    #         f.write(compressed_content)
-
-    #     sys.stdout.write(f"File '{relative_path}' staged successfully.\n")
-
-
 
 
     @staticmethod
@@ -116,22 +37,19 @@ class BitTrackStaging:
         index_file = BitTrackStaging.INDEX_FILE
         index_entries = {}
 
-        # Get repository root directory
+
         repo_root = BitTrackStaging.BIT_TRACK_DIR.parent
         absolute_path = Path(file_path).resolve()
 
+        # print(f"=====================, {repo_root}  , \n {absolute_path}")
+
         try:
-            # Compute the relative path from repo root
             relative_path = absolute_path.relative_to(repo_root)
         except ValueError:
             sys.stderr.write(f"Error: '{file_path}' is outside the repository.\n")
             return
 
-        print(f"file_path: {file_path}")  # Debugging
-        print(f"repo_root: {repo_root}")  # Debugging
-        print(f"relative_path: {relative_path}")  # Debugging
 
-        # Read existing index
         if index_file.exists():
             with index_file.open("rb") as f:
                 compressed_data = f.read()
@@ -145,9 +63,9 @@ class BitTrackStaging:
                         sys.stdout.write("Error: Corrupted index file.\n")
                         return
 
-        # Store the full relative path instead of just filename
+        
         index_entries[str(relative_path)] = ("100644", object_id)
-        print(str(relative_path), ("100644", object_id))
+        # print(str(relative_path), ("100644", object_id))
 
         # Prepare compressed data
         index_content = "\n".join(f"{mode} {obj_id} {path}" for path, (mode, obj_id) in index_entries.items())
@@ -290,6 +208,85 @@ class BitTrackStaging:
 
 
 
+
+
+#####################################################
+# @staticmethod
+# def update_index(file_name: str, object_id: str):
+#     """Update the index file with the filename and its object hash."""
+#     BitTrackStaging.check_repo()
+#     index_file = BitTrackStaging.INDEX_FILE
+#     index_entries = {}
+
+#     # Read existing index
+#     if index_file.exists():
+#         with index_file.open("rb") as f:  # Read in binary mode
+#             compressed_data = f.read()
+#             if compressed_data:
+#                 try:
+#                     decompressed_data = zlib.decompress(compressed_data).decode()
+#                     for line in decompressed_data.splitlines():
+#                         mode, obj_id, path = line.strip().split(" ", 2)
+#                         index_entries[path] = (mode, obj_id)
+#                 except zlib.error:
+#                     sys.stdout.write("Error: Corrupted index file.\n")
+#                     return
+
+#     # Update index with new file
+#     index_entries[file_name] = ("100644", object_id)
+
+#     # Prepare compressed data
+#     index_content = "\n".join(f"{mode} {obj_id} {path}" for path, (mode, obj_id) in index_entries.items())
+#     compressed_content = zlib.compress(index_content.encode())
+
+#     # Write back compressed index
+#     with index_file.open("wb") as f:  # Write in binary mode
+#         f.write(compressed_content)
+
+    # sys.stdout.write(f"File '{file_name}' staged successfully.\n")
+
+
+# @staticmethod
+# def update_index(file_path: str, object_id: str):
+#     """Update the index file with the full relative path and object hash."""
+#     BitTrackStaging.check_repo()
+#     index_file = BitTrackStaging.INDEX_FILE
+#     index_entries = {}
+
+#     # Normalize path (store relative path from repo root)
+#     repo_root = BitTrackStaging.BIT_TRACK_DIR.parent
+#     relative_path = os.path.relpath(file_path, repo_root)  # FIXED: No ValueError
+
+#     print(f"file_path: {file_path}")  # Debugging
+#     print(f"repo_root: {repo_root}")  # Debugging
+#     print(f"relative_path: {relative_path}")  # Debugging
+
+#     # Read existing index
+#     if index_file.exists():
+#         with index_file.open("rb") as f:  # Read in binary mode
+#             compressed_data = f.read()
+#             if compressed_data:
+#                 try:
+#                     decompressed_data = zlib.decompress(compressed_data).decode()
+#                     for line in decompressed_data.splitlines():
+#                         mode, obj_id, path = line.strip().split(" ", 2)
+#                         index_entries[path] = (mode, obj_id)  # Key is now full relative path
+#                 except zlib.error:
+#                     sys.stdout.write("Error: Corrupted index file.\n")
+#                     return
+
+#     # Update index with new file (store full relative path)
+#     index_entries[relative_path] = ("100644", object_id)
+
+#     # Prepare compressed data
+#     index_content = "\n".join(f"{mode} {obj_id} {path}" for path, (mode, obj_id) in index_entries.items())
+#     compressed_content = zlib.compress(index_content.encode())
+
+#     # Write back compressed index
+#     with index_file.open("wb") as f:  # Write in binary mode
+#         f.write(compressed_content)
+
+#     sys.stdout.write(f"File '{relative_path}' staged successfully.\n")
 
 
 

@@ -3,8 +3,10 @@ from pathlib import Path
 import sys
 import hashlib
 import zlib
+from bit_track.bit_ignore import BitIgnore
+from bit_track.bit_track_repository import BitTrackRepository
 
-
+from bit_track.utils.file_handler import FileHandler
 
 
 
@@ -22,7 +24,7 @@ class ObjectManager:
     def write_object(data, obj_type="blob"):
         """Write an object (blob or tree) to the objects directory."""
         bit_track_dir = Path.cwd() / ".bit_track"
-        print("==================================",bit_track_dir)
+        # print("==================================",bit_track_dir)
         if not bit_track_dir.exists():
             sys.stderr.write("Error: .bit_track directory does not exist. Please run 'bit_track init' first.\n")
             return None
@@ -33,7 +35,24 @@ class ObjectManager:
         obj_dir.mkdir(parents=True, exist_ok=True)
         obj_file = obj_dir / object_id[2:]
 
-        if not obj_file.exists():
+        if not obj_file.exists():# not exists in dir 
+            #check in index
+            index_path = BitTrackRepository.index_file
+
+            content = FileHandler.read_file(index_path)
+            print(content,"=======================================================")
+            print(content)
+            print(content,"=======================================================")
+
+            if obj_type == "tree":
+                with obj_file.open("wb") as f:
+                    f.write(compressed_data)
+                    return  object_id
+                 
+
+            if not object_id in content:
+                return
+
             with obj_file.open("wb") as f:
                 f.write(compressed_data)
         return object_id
@@ -68,11 +87,16 @@ class ObjectManager:
         #     sys.stderr.write("Error: .bit_track directory does not exist. Please run 'bit_track init' first.\n")
         #     return None
 
+        ignore_patterns = BitIgnore.load_ignored_patterns()
+
         for path in sorted(directory.iterdir()):
             print(path.name)
-            if path.name in ObjectManager.ignores():
-                print("inside ignore ", path.name , ": ", ObjectManager.ignores())
-                continue  # Skip ignored files
+
+            if ".bit_track" in path.parts:
+                continue
+            if BitIgnore.is_ignored(path, ignore_patterns):
+                continue
+
 
             if path.is_file():
                 object_id = ObjectManager.create_blob(str(path))
@@ -92,6 +116,11 @@ class ObjectManager:
     @staticmethod
     def ignores():
         """Read .bitignore file and return ignored patterns."""
+        print(BitIgnore.list_tracked_files(), " =============================")
+        return
+
+        return BitIgnore.list_tracked_files()
+
         current_dir = Path.cwd()
         # print("ignore dir ==========" , current_dir)
         bit_ignore_file = current_dir / ".bitignore"

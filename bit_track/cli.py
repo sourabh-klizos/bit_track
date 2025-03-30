@@ -55,6 +55,15 @@ class BitTrackCLI:
         elif command == "reset":
             BitTrackStaging.clear_staging()
 
+        elif command == "commit":
+            if len(command_args) != 2 or command_args[0] != "-m":
+                sys.stderr.write("Usage: bit_track commit -m 'example message' ")
+                sys.exit(1)
+            # print(Path.cwd())
+
+            ObjectManager.create_tree(Path.cwd())
+
+
         else:
             suggestions = difflib.get_close_matches(command, BitTrackCLI.COMMANDS.keys())
             suggestion_text = f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
