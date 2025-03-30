@@ -5,16 +5,22 @@ import difflib
 import sys
 from pathlib import Path
 
-from bit_track.index import GitAdd
+from bit_track.index import BitTrackAdd
+from bit_track.staging import BitTrackStaging
 
 
 
+import argparse
+import sys
+import difflib
 
 class BitTrackCLI:
     COMMANDS = {
         "init": BitTrackRepository.init,
-        "add" : ObjectManager.create_tree,
-        "cat-file -p" :  ObjectManager.read_object,
+        "add": ObjectManager.create_tree,
+        "cat-file -p": ObjectManager.read_object,
+        "status": BitTrackStaging.show_staging,
+        "reset": BitTrackStaging.clear_staging 
     }
 
     @staticmethod
@@ -22,19 +28,16 @@ class BitTrackCLI:
         parser = argparse.ArgumentParser(description="BitTrack - A simple version control system")
         parser.add_argument("command", help="Command to execute")
         parser.add_argument("args", nargs=argparse.REMAINDER, help="Additional arguments for the command")
-        
+
         args = parser.parse_args()
         command = args.command.lower()
         command_args = args.args  # Extra arguments after the command
-
-        # print(command_args)  # Debugging: Check how args are parsed
 
         if command == "init":
             BitTrackRepository.init()
 
         elif command == "add":
-            # ObjectManager.create_tree(Path.cwd())
-            GitAdd.add_all_files()
+            BitTrackAdd.add_all_files()
 
         elif command == "cat-file":
             if len(command_args) != 2 or command_args[0] != "-p":
@@ -43,15 +46,18 @@ class BitTrackCLI:
             
             object_id = command_args[1]
             content = ObjectManager.read_object(object_id)
-            # sys.stdout.write(content + "\n") 
-            # print(content)
             if content:
-                sys.stdout.write(content + "\n") 
-        
+                sys.stdout.write(content + "\n")
+
+        elif command == "status":
+            BitTrackStaging.show_staging()  # Call the status function
+
+        elif command == "reset":
+            BitTrackStaging.clear_staging()
+
         else:
             suggestions = difflib.get_close_matches(command, BitTrackCLI.COMMANDS.keys())
             suggestion_text = f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
             sys.stderr.write(f"Error: Unknown command '{command}'.{suggestion_text}\n")
             sys.exit(1)
-
 
