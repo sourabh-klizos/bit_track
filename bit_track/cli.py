@@ -58,10 +58,14 @@ class BitTrackCLI:
         elif command == "commit":
             if len(command_args) != 2 or command_args[0] != "-m":
                 sys.stderr.write("Usage: bit_track commit -m 'example message' ")
+                
                 sys.exit(1)
             # print(Path.cwd())
 
             ObjectManager.create_tree(Path.cwd())
+            print(command_args[1])
+            ObjectManager.set_commit_message(command_args[1])
+
 
 
         else:

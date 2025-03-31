@@ -38,6 +38,12 @@ class BitTrackRepository:
     head_file = bt_dir / "HEAD"
     config_file = bt_dir / "config"
     index_file = bt_dir / "index"
+    heads_dir = refs_dir/ "heads"
+    main_file = heads_dir / "main"
+
+
+
+
 
     @classmethod
     def init(cls):
@@ -50,6 +56,9 @@ class BitTrackRepository:
             cls.bt_dir.mkdir()
             cls.objects_dir.mkdir()
             cls.refs_dir.mkdir()
+            cls.heads_dir.mkdir()
+            cls.main_file.touch()
+            
 
             cls.head_file.write_text("ref: refs/heads/main\n")
             cls.config_file.write_text(

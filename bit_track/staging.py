@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 import zlib
 import os
-
+from bit_track.bit_track_repository import BitTrackRepository
 
 
 
@@ -13,9 +13,13 @@ import os
 class BitTrackStaging:
     """Handles staging operations for BitTrack."""
     
-    BIT_TRACK_DIR = Path.cwd() / ".bit_track"
-    INDEX_FILE = BIT_TRACK_DIR / "index"
-    OBJECTS_DIR = BIT_TRACK_DIR / "objects"
+    # BIT_TRACK_DIR = Path.cwd() / ".bit_track" 
+    # INDEX_FILE = BIT_TRACK_DIR / "index"
+    # OBJECTS_DIR = BIT_TRACK_DIR / "objects"
+
+    BIT_TRACK_DIR = BitTrackRepository.worktree
+    INDEX_FILE = BitTrackRepository.index_file
+    OBJECTS_DIR = BitTrackRepository.objects_dir
 
     @staticmethod
     def check_repo():
@@ -60,7 +64,7 @@ class BitTrackStaging:
                         decompressed_data = zlib.decompress(compressed_data).decode()
                         for line in decompressed_data.splitlines():
                             mode, obj_id, path = line.strip().split(" ", 2)
-                            index_entries[path] = (mode, obj_id)  # Store full relative path
+                            index_entries[path] = (mode, obj_id)
                             hash_ids.append(obj_id)
                     except zlib.error:
                         sys.stdout.write("Error: Corrupted index file.\n")
@@ -79,7 +83,7 @@ class BitTrackStaging:
         #     if obj_id in hash_ids:
         #         continue
         #     obj_dir = BitTrackStaging.OBJECTS_DIR
-        #     # Check if object already exists in .bit_track/objects/XX/YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+        #     # Check if object already exists in .bit_track
         #     obj_path = obj_dir / obj_id[:2] / obj_id[2:]
         #     if obj_path.exists():
         #         continue
@@ -211,6 +215,34 @@ class BitTrackStaging:
 
 
 
+    @staticmethod
+    def clear_staging_only_from_index():
+        """Clear all staged files without deleting the index file, and keep corresponding objects."""
+        BitTrackStaging.check_repo()
+        index_file = BitTrackStaging.INDEX_FILE
+
+        if not index_file.exists() or index_file.stat().st_size == 0:
+            sys.stdout.write("No files staged.\n")
+            return
+
+        # Read and decompress the index file
+        try:
+            with index_file.open("rb") as f:
+                compressed_data = f.read()
+                if not compressed_data:
+                    sys.stdout.write("No files staged.\n")
+                    return
+
+                decompressed_data = zlib.decompress(compressed_data).decode()
+        except zlib.error:
+            sys.stdout.write("Error: Corrupted index file.\n")
+            return
+
+        # Clear the index file without deleting objects
+        with index_file.open("wb") as f:
+            f.write(zlib.compress(b""))
+
+        sys.stdout.write("Staging area cleared, but objects are retained.\n")
 
 
 

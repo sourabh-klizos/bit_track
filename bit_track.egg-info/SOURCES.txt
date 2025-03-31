@@ -1,9 +1,13 @@
 README.md
 setup.py
 bit_track/__init__.py
+bit_track/bit_ignore.py
 bit_track/bit_track_repository.py
 bit_track/cli.py
+bit_track/index.py
 bit_track/main.py
+bit_track/objects.py
+bit_track/staging.py
 bit_track.egg-info/PKG-INFO
 bit_track.egg-info/SOURCES.txt
 bit_track.egg-info/dependency_links.txt

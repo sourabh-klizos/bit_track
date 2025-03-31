@@ -11,17 +11,27 @@ from bit_track.staging import BitTrackStaging
 
 
 
+
+
+
+
+
+
 class BitTrackAdd:
+
+
 
     resent_staged = list()
 
     @staticmethod
     def hash_object(data: bytes) -> str:
-        """Generate SHA-1 hash for a given object."""
-        header = f"{"blob"} {len(data)}".encode() + b"\0"
-        store_data = header + data
-        object_id = hashlib.sha1(store_data).hexdigest()
-        return object_id, zlib.compress(data)
+        # """Generate SHA-1 hash for a given object."""
+        # header = f"{'blob'} {len(data)}".encode() + b"\0"
+        # store_data = header + data
+        # object_id = hashlib.sha1(store_data).hexdigest()
+        # return object_id, zlib.compress(data)
+
+        return ObjectManager.hash_object(data)
     
     @staticmethod
     def write_object(data, file_name, obj_type="blob"):
@@ -38,8 +48,13 @@ class BitTrackAdd:
         obj_dir = objects_dir / object_id[:2]
         obj_file = obj_dir / object_id[2:]
 
+
+        print("exists ==============",obj_file.exists() )
+        # print("exists ==============",object_id)
+
         if obj_file.exists():
             return object_id 
+        print("exists after exists ==============")
         
 
         BitTrackStaging.update_index(file_name,object_id)
@@ -55,7 +70,7 @@ class BitTrackAdd:
 
         return object_id
     
-
+    # existing func
     @staticmethod
     def create_blob(file_path: str) -> str:
         """Create a blob object for a file and store it."""
@@ -74,14 +89,19 @@ class BitTrackAdd:
         except Exception as e:
             sys.stderr.write(f"Error creating blob: {e}\n")
             return None
-        
+
+    # @staticmethod
+    # def create_blob(file_path: str) -> str:
+    #     object_id = ObjectManager.create_blob(file_path=file_path)
+
     
     @staticmethod
     def add_all_files():
         ignore_patterns = BitIgnore.load_ignored_patterns()
         tracked_files = []
 
-        for file_path in Path.cwd().rglob("*"):
+        # for file_path in Path.cwd().rglob("*"):
+        for file_path in sorted(Path.cwd().iterdir()):
             if ".bit_track" in file_path.parts:  # Always ignore the repo folder
                 continue
             if BitIgnore.is_ignored(file_path, ignore_patterns):
