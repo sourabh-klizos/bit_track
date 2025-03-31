@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bit_track.index import BitTrackAdd
 from bit_track.staging import BitTrackStaging
+from bit_track.commit_logs import BitTrackLogs
 
 
 
@@ -20,7 +21,8 @@ class BitTrackCLI:
         "add": ObjectManager.create_tree,
         "cat-file -p": ObjectManager.read_object,
         "status": BitTrackStaging.show_staging,
-        "reset": BitTrackStaging.clear_staging 
+        "reset": BitTrackStaging.clear_staging ,
+        "logs" :BitTrackLogs.show_commit_logs,
     }
 
     @staticmethod
@@ -66,6 +68,8 @@ class BitTrackCLI:
             # print(command_args[1])
             # ObjectManager.set_commit_message(command_args[1])
 
+        elif command == "log":
+            BitTrackLogs.show_commit_logs()
 
 
         else:

@@ -8,7 +8,7 @@ from bit_track.bit_track_repository import BitTrackRepository
 from bit_track.staging import BitTrackStaging
 from bit_track.utils.file_handler import FileHandler
 
-from bit_track.bit_track_repository import BitTrackRepository
+from datetime import datetime
 
 
 
@@ -111,7 +111,7 @@ class ObjectManager:
                 content = file.read()
 
             object_id = ObjectManager.write_object(content, "blob")
-            sys.stdout.write(f"Blob created: {file_path} -> {object_id}\n")
+            # sys.stdout.write(f"Blob created: {file_path} -> {object_id}\n")
             return object_id
         except Exception as e:
             sys.stderr.write(f"Error creating blob: {e}\n")
@@ -136,7 +136,7 @@ class ObjectManager:
         content = FileHandler.read_file(index_path)
 
         if not content:
-            sys.stdout.write("Nothing to commit please add first")
+            sys.stdout.write("Nothing to commit please add first \n")
             return
 
 
@@ -174,7 +174,15 @@ class ObjectManager:
 
         tree_data = b"".join(entries)
         tree_object_id = ObjectManager.write_object(tree_data, "tree")
+
         sys.stdout.write(f"Tree created: {directory} -> {tree_object_id}\n")
+
+
+        # print(entries)
+
+        # for item in entries:
+        #     print(item.decode())
+
 
 
         ObjectManager.store_snapshot_and_commit(tree_object_id,commit_message)
@@ -237,11 +245,20 @@ class ObjectManager:
         head_file = BitTrackRepository.main_file
         parent_commit = ObjectManager.get_latest_commit()
 
+        print(parent_commit, " ===============================")
+
+        name, email = BitTrackRepository.get_user_config()
 
         commit_data = f"tree {tree_hash}\n"
         if parent_commit:
-            commit_data += f"parent {parent_commit}\n\n"
+            commit_data += f"parent {parent_commit}\n"
+
+        if name and email:
+            commit_data += f"author {name} <{email}>\n"
+
+        commit_data += f"time {datetime.now()} \n"
         commit_data += f"message {commit_message}\n"
+
 
         
         commit_bytes = commit_data.encode()

@@ -242,7 +242,7 @@ class BitTrackStaging:
         with index_file.open("wb") as f:
             f.write(zlib.compress(b""))
 
-        sys.stdout.write("Staging area cleared, but objects are retained.\n")
+        # sys.stdout.write("Staging area cleared, but objects are retained.\n")
 
 
 
