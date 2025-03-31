@@ -62,9 +62,9 @@ class BitTrackCLI:
                 sys.exit(1)
             # print(Path.cwd())
 
-            ObjectManager.create_tree(Path.cwd())
-            print(command_args[1])
-            ObjectManager.set_commit_message(command_args[1])
+            ObjectManager.create_tree(Path.cwd(),command_args[1] )
+            # print(command_args[1])
+            # ObjectManager.set_commit_message(command_args[1])
 
 
 

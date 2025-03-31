@@ -36,13 +36,12 @@ class ObjectManager:
     def write_object(data, obj_type="blob"):
         """Write an object (blob or tree) to the objects directory."""
         bit_track_dir = Path.cwd() / ".bit_track"
-        # print("==================================",bit_track_dir)
+
         if not bit_track_dir.exists():
             sys.stderr.write("Error: .bit_track directory does not exist. Please run 'bit_track init' first.\n")
             return None
 
         object_id, compressed_data = ObjectManager.hash_object(data, obj_type)
-        # objects_dir = bit_track_dir / "objects"
         objects_dir = ObjectManager.objects_dir
         obj_dir = objects_dir / object_id[:2]
         obj_dir.mkdir(parents=True, exist_ok=True)
@@ -90,7 +89,9 @@ class ObjectManager:
     def set_commit_message(message:str) -> None:
         # print(message, "args  ==========================================")
         ObjectManager.commit_message = message
-        # print(ObjectManager.commit_message, " cls val------------------------------------------------")
+
+
+        print(ObjectManager.commit_message, " cls val------------------------------------------------")
         return
 
 
@@ -117,19 +118,18 @@ class ObjectManager:
             return None
 
     @staticmethod
-    def create_tree(directory: str) -> str:
+    def create_tree(directory: str , commit_message) -> str:
         """Recursively create a tree object for a directory."""
 
 
 
         directory = Path(directory)
         entries = []
-        # print("dr -===================================",directory)
 
         bit_track_dir = directory / ".bit_track"
-        if not bit_track_dir.exists():
-            sys.stderr.write("Error: .bit_track directory does not exist. Please run 'bit_track init' first.\n")
-            return None
+        # if not bit_track_dir.exists():
+        #     sys.stderr.write("Error: .bit_track directory does not exist. Please run 'bit_track init' first.\n")
+        #     return None
 
 
         index_path = BitTrackRepository.index_file
@@ -144,9 +144,8 @@ class ObjectManager:
         ignore_patterns = BitIgnore.load_ignored_patterns()
 
         for path in sorted(directory.iterdir()):
+        # for path in sorted(Path.cwd().rglob("*")):
         # for path in Path.cwd().rglob("*"):
-        # for path in Path.cwd().rglob("*"):
-            print(path.name)
 
             
             if ".bit_track" in path.parts:
@@ -169,16 +168,16 @@ class ObjectManager:
                     entries.append(f"100644 blob {path.name} ".encode() + b"\0" + object_id.encode() + b"\n")
 
             elif path.is_dir():
-                object_id = ObjectManager.create_tree(str(path))
+                object_id = ObjectManager.create_tree(str(path), commit_message)
                 if object_id:
                     entries.append(f"40000  tree {path.name} ".encode() + b"\0" + object_id.encode() + b"\n")
 
         tree_data = b"".join(entries)
         tree_object_id = ObjectManager.write_object(tree_data, "tree")
         sys.stdout.write(f"Tree created: {directory} -> {tree_object_id}\n")
-        ## clear index file
 
-        ObjectManager.store_snapshot_and_commit(tree_object_id,ObjectManager.commit_message)
+
+        ObjectManager.store_snapshot_and_commit(tree_object_id,commit_message)
 
 
         BitTrackStaging.clear_staging_only_from_index()
@@ -217,16 +216,13 @@ class ObjectManager:
     @staticmethod
     def get_latest_commit() -> str:
         """Retrieve the latest commit hash from HEAD (if any), decompressing it."""
-        head_file = Path(".bittrack") / "HEAD"
+        head_file = ObjectManager.main_file
 
         if head_file.exists():
             try:
-                with head_file.open("rb") as file:  # Read as binary
-                    compressed_data = file.read()
-
-                # Decompress the stored commit hash
-                decompressed_data = zlib.decompress(compressed_data)
-                return decompressed_data.decode().strip()
+                with head_file.open("r") as file: 
+                    commit_hash_parent = file.read()
+                return commit_hash_parent if commit_hash_parent else None
 
             except Exception as e:
                 sys.stderr.write(f"Error reading HEAD: {e}\n")
@@ -241,7 +237,7 @@ class ObjectManager:
         head_file = BitTrackRepository.main_file
         parent_commit = ObjectManager.get_latest_commit()
 
-        # Format commit data
+
         commit_data = f"tree {tree_hash}\n"
         if parent_commit:
             commit_data += f"parent {parent_commit}\n\n"
@@ -251,22 +247,21 @@ class ObjectManager:
         commit_bytes = commit_data.encode()
         compressed_commit = zlib.compress(commit_bytes)
 
-        # Generate SHA-256 hash of the commit
-        commit_hash = hashlib.sha256(commit_bytes).hexdigest()
+   
+        commit_hash = ObjectManager.hash_object(compressed_commit)[0]
 
-        # Store commit as an object
         commit_file = ObjectManager.objects_dir / commit_hash[:2] / commit_hash[2:]
+
         commit_file.parent.mkdir(parents=True, exist_ok=True)
 
         try:
             with commit_file.open("wb") as file:
                 file.write(compressed_commit)
 
-            # Compress commit hash before storing it in HEAD
             compressed_head = zlib.compress(commit_hash.encode())
 
-            with head_file.open("wb") as file:
-                file.write(compressed_head)  # Store in compressed format
+            with head_file.open("w") as file:
+                file.write(commit_hash)
 
             print(f"Commit {commit_hash} stored successfully.")
             return commit_hash

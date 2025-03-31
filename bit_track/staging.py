@@ -105,8 +105,9 @@ class BitTrackStaging:
         # Write back compressed index
         with index_file.open("wb") as f:
             f.write(compressed_content)
-
-        sys.stdout.write(f"File '{relative_path}' staged successfully.\n")
+        
+        sys.stdout.write(f"Files added ")
+        sys.stdout.write(f"\t {relative_path}\n")
 
 
     
@@ -157,7 +158,7 @@ class BitTrackStaging:
             sys.stdout.write("No files staged.\n")
             return
 
-        # Read and decompress the index file
+
         try:
             with index_file.open("rb") as f:
                 compressed_data = f.read()
@@ -171,7 +172,6 @@ class BitTrackStaging:
             return
 
 
-        # Remove corresponding object files
         for line in decompressed_data.splitlines():
             parts = line.strip().split(" ", 2)
             if len(parts) != 3:
