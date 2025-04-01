@@ -21,8 +21,6 @@ class ObjectManager:
 
     commit_message = ""
 
-
-
     @staticmethod
     def hash_object(data, obj_type="blob"):
         """Generate SHA-1 hash for a given object."""

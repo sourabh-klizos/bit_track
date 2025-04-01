@@ -9,7 +9,8 @@ from bit_track.index import BitTrackAdd
 from bit_track.staging import BitTrackStaging
 from bit_track.commit_logs import BitTrackLogs
 
-
+import colorama
+from colorama import Fore, Style
 
 import argparse
 import sys
@@ -49,7 +50,9 @@ class BitTrackCLI:
             object_id = command_args[1]
             content = ObjectManager.read_object(object_id)
             if content:
-                sys.stdout.write(content + "\n")
+                # sys.stdout.write(content + "\n")
+                sys.stdout.write(Fore.GREEN + "Object Content:\n" + Style.RESET_ALL)
+                sys.stdout.write(Fore.YELLOW + content + "\n" + Style.RESET_ALL)
 
         elif command == "status":
             BitTrackStaging.show_staging()  # Call the status function
