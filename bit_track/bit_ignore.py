@@ -2,7 +2,6 @@ from pathlib import Path
 import fnmatch
 
 
-
 class BitIgnore:
     IGNORE_FILE = ".bitignore"
 
@@ -16,7 +15,7 @@ class BitIgnore:
             with ignore_path.open("r") as f:
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith("#"): 
+                    if line and not line.startswith("#"):
                         patterns.add(line)
         return patterns
 
@@ -27,11 +26,15 @@ class BitIgnore:
 
         for pattern in ignore_patterns:
             # Check for exact match or wildcard match
-            if fnmatch.fnmatch(str(relative_path), pattern) or fnmatch.fnmatch(file_path.name, pattern):
+            if fnmatch.fnmatch(str(relative_path), pattern) or fnmatch.fnmatch(
+                file_path.name, pattern
+            ):
                 return True
 
             # Ignore all contents of a folder if the pattern ends with "/"
-            if pattern.endswith("/") and str(relative_path).startswith(pattern.rstrip("/")):
+            if pattern.endswith("/") and str(relative_path).startswith(
+                pattern.rstrip("/")
+            ):
                 return True
 
         return False
@@ -48,7 +51,6 @@ class BitIgnore:
             if BitIgnore.is_ignored(file_path, ignore_patterns):
                 # print(f"Ignoring: {file_path}")
                 continue
-
 
             tracked_files.append(file_path)
 

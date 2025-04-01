@@ -6,7 +6,6 @@ import colorama
 from colorama import Fore, Style
 
 
-
 class BitTrackLogs:
     main_file = BitTrackRepository.main_file
     object_dir = BitTrackRepository.objects_dir
@@ -27,17 +26,17 @@ class BitTrackLogs:
         if not latest_commit_hash:
             sys.stdout.write("No latest commit found.\n")
             return
-        
-        
+
         commit_data = cls.get_commit_object(latest_commit_hash)
 
         if not commit_data:
-            sys.stdout.write(f"Commit {latest_commit_hash} not found in objects directory.\n")
+            sys.stdout.write(
+                f"Commit {latest_commit_hash} not found in objects directory.\n"
+            )
             return
-        
+
         logs = []
         parent_commit = None
-        
 
         for line in commit_data.splitlines():
 
@@ -49,19 +48,23 @@ class BitTrackLogs:
                 author = line.split(" ", 1)[1].strip()
             elif line.startswith("time "):
                 timestamp = line.split(" ", 1)[1].strip()
-        
-        logs.append({
-            "commit": latest_commit_hash,
-            "parent": parent_commit,
-            "author": author,
-            "time": timestamp,
-            "message": commit_message
-        })
-        
+
+        logs.append(
+            {
+                "commit": latest_commit_hash,
+                "parent": parent_commit,
+                "author": author,
+                "time": timestamp,
+                "message": commit_message,
+            }
+        )
+
         sys.stdout.write(f"Commit Logs:\n")
         for log in logs:
             sys.stdout.write(Fore.YELLOW + f"Commit: {Fore.CYAN}{log['commit']}\n")
-            sys.stdout.write(Fore.YELLOW + f"Parent: {Fore.CYAN}{log['parent'] or 'None'}\n")
+            sys.stdout.write(
+                Fore.YELLOW + f"Parent: {Fore.CYAN}{log['parent'] or 'None'}\n"
+            )
             sys.stdout.write(Fore.YELLOW + f"Author: {Fore.MAGENTA}{log['author']}\n")
             sys.stdout.write(Fore.YELLOW + f"Time: {Fore.BLUE}{log['time']}\n")
             sys.stdout.write(Fore.YELLOW + f"Message: {Fore.WHITE}{log['message']}\n")
@@ -70,12 +73,3 @@ class BitTrackLogs:
             BitTrackLogs.show_commit_logs(parent_commit)
 
         sys.stdout.write(Style.RESET_ALL + "\n")
-
-
-
-
-
-
-
-
-

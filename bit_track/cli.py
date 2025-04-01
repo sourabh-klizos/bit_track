@@ -16,21 +16,28 @@ import argparse
 import sys
 import difflib
 
+
 class BitTrackCLI:
     COMMANDS = {
         "init": BitTrackRepository.init,
         "add": ObjectManager.create_tree,
         "cat-file -p": ObjectManager.read_object,
         "status": BitTrackStaging.show_staging,
-        "reset": BitTrackStaging.clear_staging ,
-        "logs" :BitTrackLogs.show_commit_logs,
+        "reset": BitTrackStaging.clear_staging,
+        "logs": BitTrackLogs.show_commit_logs,
     }
 
     @staticmethod
     def handle_command():
-        parser = argparse.ArgumentParser(description="BitTrack - A simple version control system")
+        parser = argparse.ArgumentParser(
+            description="BitTrack - A simple version control system"
+        )
         parser.add_argument("command", help="Command to execute")
-        parser.add_argument("args", nargs=argparse.REMAINDER, help="Additional arguments for the command")
+        parser.add_argument(
+            "args",
+            nargs=argparse.REMAINDER,
+            help="Additional arguments for the command",
+        )
 
         args = parser.parse_args()
         command = args.command.lower()
@@ -46,7 +53,7 @@ class BitTrackCLI:
             if len(command_args) != 2 or command_args[0] != "-p":
                 sys.stderr.write("Usage: bit_track cat-file -p <object_id>\n")
                 sys.exit(1)
-            
+
             object_id = command_args[1]
             content = ObjectManager.read_object(object_id)
             if content:
@@ -63,7 +70,7 @@ class BitTrackCLI:
         elif command == "commit":
             if len(command_args) != 2 or command_args[0] != "-m":
                 sys.stderr.write("Usage: bit_track commit -m 'example message' ")
-                
+
                 sys.exit(1)
             # print(Path.cwd())
 
@@ -72,21 +79,22 @@ class BitTrackCLI:
             # print(command_args[1])
             # ObjectManager.set_commit_message(command_args[1])
 
-
             # print("tree_object_id == ",tree_object_id)
 
             if tree_object_id:
-                ObjectManager.store_snapshot_and_commit(tree_object_id,command_args[1])
+                ObjectManager.store_snapshot_and_commit(tree_object_id, command_args[1])
                 BitTrackStaging.clear_staging_only_from_index()
 
         elif command == "log":
             latest_commit_hash = BitTrackLogs.get_latest_commit()
             BitTrackLogs.show_commit_logs(latest_commit_hash)
 
-
         else:
-            suggestions = difflib.get_close_matches(command, BitTrackCLI.COMMANDS.keys())
-            suggestion_text = f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
+            suggestions = difflib.get_close_matches(
+                command, BitTrackCLI.COMMANDS.keys()
+            )
+            suggestion_text = (
+                f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
+            )
             sys.stderr.write(f"Error: Unknown command '{command}'.{suggestion_text}\n")
             sys.exit(1)
-

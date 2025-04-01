@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 import zlib
 
+
 class FileHandler:
     """Handles file operations like creating, writing, and reading files."""
 
@@ -9,7 +10,9 @@ class FileHandler:
     def create_file(file_path: Path, content: str = "") -> None:
         """Creates a file and writes content to it."""
         try:
-            file_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
+            file_path.parent.mkdir(
+                parents=True, exist_ok=True
+            )  # Ensure the directory exists
             file_path.write_text(content)
         except Exception as e:
             print(f"Error creating file {file_path}: {e}")
@@ -20,7 +23,7 @@ class FileHandler:
         try:
             if not file_path.exists():
                 raise FileNotFoundError(f"File not found: {file_path}")
-            
+
             with file_path.open("rb") as f:
                 compressed_data = f.read()
             if not compressed_data:
@@ -35,16 +38,13 @@ class FileHandler:
                         mode, obj_id, path = line.strip().split(" ", 2)
                         obj_ids.append(obj_id)
                         # sys.stdout.write(f"  {mode} {obj_id} {path}\n")
-                        
+
                     print(obj_ids)
                     return obj_ids
 
             except zlib.error:
                 sys.stdout.write("Error: Corrupted index file.\n")
                 return
-            
-
-
 
         except Exception as e:
             print(f"Error reading file {file_path}: {e}")
