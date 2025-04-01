@@ -15,6 +15,7 @@ from colorama import Fore, Style
 import argparse
 import sys
 import difflib
+from bit_track.revert import Revert
 
 
 class BitTrackCLI:
@@ -88,6 +89,18 @@ class BitTrackCLI:
         elif command == "log":
             latest_commit_hash = BitTrackLogs.get_latest_commit()
             BitTrackLogs.show_commit_logs(latest_commit_hash)
+
+        elif command == "revert":
+            if len(command_args) != 1:
+                sys.stderr.write("Usage: bit_track commit -m 'example message' ")
+
+            commit_hash = command_args[0]
+            print("commit hash", commit_hash)
+            if commit_hash:
+                Revert.revert_to_old_tree(commit_hash)
+                
+
+
 
         else:
             suggestions = difflib.get_close_matches(
