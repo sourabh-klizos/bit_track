@@ -52,7 +52,7 @@ class BitTrackStaging:
         try:
             relative_path = absolute_path.relative_to(repo_root)
         except ValueError:
-            sys.stderr.write(f"Error: '{file_path}' is outside the repository.\n")
+            # sys.stderr.write(f"Error: '{file_path}' is outside the repository.\n")
             return
 
 

@@ -52,7 +52,7 @@ class ObjectManager:
         if not obj_file.exists():# not exists in dir 
             # #check in index
 
-            print("obj_file not exists ",obj_file)
+            # print("obj_file not exists ",obj_file)
 
             # index_path = BitTrackRepository.index_file
             # content = FileHandler.read_file(index_path)
@@ -91,7 +91,7 @@ class ObjectManager:
         ObjectManager.commit_message = message
 
 
-        print(ObjectManager.commit_message, " cls val------------------------------------------------")
+        # print(ObjectManager.commit_message, " cls val------------------------------------------------")
         return
 
 
@@ -118,7 +118,7 @@ class ObjectManager:
             return None
 
     @staticmethod
-    def create_tree(directory: str , commit_message) -> str:
+    def create_tree(directory: str ) -> str:
         """Recursively create a tree object for a directory."""
 
 
@@ -137,7 +137,7 @@ class ObjectManager:
 
         if not content:
             sys.stdout.write("Nothing to commit please add first \n")
-            return
+            return None
 
 
 
@@ -168,14 +168,14 @@ class ObjectManager:
                     entries.append(f"100644 blob {path.name} ".encode() + b"\0" + object_id.encode() + b"\n")
 
             elif path.is_dir():
-                object_id = ObjectManager.create_tree(str(path), commit_message)
+                object_id = ObjectManager.create_tree(str(path))
                 if object_id:
                     entries.append(f"40000  tree {path.name} ".encode() + b"\0" + object_id.encode() + b"\n")
 
         tree_data = b"".join(entries)
         tree_object_id = ObjectManager.write_object(tree_data, "tree")
 
-        sys.stdout.write(f"Tree created: {directory} -> {tree_object_id}\n")
+        # sys.stdout.write(f"Tree created: {directory} -> {tree_object_id}\n")
 
 
         # print(entries)
@@ -185,10 +185,10 @@ class ObjectManager:
 
 
 
-        ObjectManager.store_snapshot_and_commit(tree_object_id,commit_message)
+        # ObjectManager.store_snapshot_and_commit(tree_object_id,commit_message)
 
 
-        BitTrackStaging.clear_staging_only_from_index()
+        # BitTrackStaging.clear_staging_only_from_index()
 
         return tree_object_id
 
@@ -229,7 +229,8 @@ class ObjectManager:
         if head_file.exists():
             try:
                 with head_file.open("r") as file: 
-                    commit_hash_parent = file.read()
+                    commit_hash_parent = file.read().strip()
+
                 return commit_hash_parent if commit_hash_parent else None
 
             except Exception as e:
@@ -238,20 +239,85 @@ class ObjectManager:
         return None
     
 
+    # @staticmethod
+    # def store_snapshot_and_commit(tree_hash: str, commit_message: str) -> str:
+    #     """Creates and stores a commit object, updating HEAD in a compressed format."""
+
+    #     head_file = BitTrackRepository.main_file
+    #     parent_commit = ObjectManager.get_latest_commit()
+
+    #     print(parent_commit, " ===============================")
+
+    #     name, email = BitTrackRepository.get_user_config()
+
+    #     commit_data = f"tree {tree_hash}\n"
+    #     if parent_commit:
+    #         commit_data += f"parent {parent_commit}\n"
+
+    #     if name and email:
+    #         commit_data += f"author {name} <{email}>\n"
+
+    #     commit_data += f"time {datetime.now()} \n"
+    #     commit_data += f"message {commit_message}\n"
+
+
+        
+    #     commit_bytes = commit_data.encode()
+    #     compressed_commit = zlib.compress(commit_bytes)
+
+   
+    #     commit_hash = ObjectManager.hash_object(compressed_commit)[0]
+
+    #     commit_file = ObjectManager.objects_dir / commit_hash[:2] / commit_hash[2:]
+
+    #     commit_file.parent.mkdir(parents=True, exist_ok=True)
+
+    #     try:
+    #         with commit_file.open("wb") as file:
+    #             file.write(compressed_commit)
+
+    #         compressed_head = zlib.compress(commit_hash.encode())
+
+    #         with head_file.open("w") as file:
+    #             file.write(commit_hash)
+
+    #         print(f"Commit {commit_hash} stored successfully.")
+    #         return commit_hash
+
+    #     except Exception as e:
+    #         sys.stderr.write(f"Error writing commit: {e}\n")
+    #         return None
+
+
+
     @staticmethod
     def store_snapshot_and_commit(tree_hash: str, commit_message: str) -> str:
         """Creates and stores a commit object, updating HEAD in a compressed format."""
-
         head_file = BitTrackRepository.main_file
         parent_commit = ObjectManager.get_latest_commit()
 
-        print(parent_commit, " ===============================")
+        print(f"DEBUG: Latest commit found: {type(parent_commit) }  : {parent_commit}")  # Debugging
 
         name, email = BitTrackRepository.get_user_config()
 
         commit_data = f"tree {tree_hash}\n"
-        if parent_commit:
+        
+        # Ensure the parent commit is only added if valid
+        # if parent_commit and parent_commit.strip():
+        #     commit_data += f"parent {parent_commit}\n"
+
+        if parent_commit != None:
             commit_data += f"parent {parent_commit}\n"
+
+        # if parent_commit != "None":
+        #     commit_data += f"parent string None {parent_commit}\n"
+            
+            
+        # if not parent_commit:
+        #     print("Not Parent " *5)
+            
+
+
 
         if name and email:
             commit_data += f"author {name} <{email}>\n"
@@ -259,14 +325,13 @@ class ObjectManager:
         commit_data += f"time {datetime.now()} \n"
         commit_data += f"message {commit_message}\n"
 
+        # Debug: Print final commit data before storing
+        # print("final commit data before writing:\n", commit_data)
 
-        
         commit_bytes = commit_data.encode()
         compressed_commit = zlib.compress(commit_bytes)
 
-   
         commit_hash = ObjectManager.hash_object(compressed_commit)[0]
-
         commit_file = ObjectManager.objects_dir / commit_hash[:2] / commit_hash[2:]
 
         commit_file.parent.mkdir(parents=True, exist_ok=True)

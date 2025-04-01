@@ -64,12 +64,21 @@ class BitTrackCLI:
                 sys.exit(1)
             # print(Path.cwd())
 
-            ObjectManager.create_tree(Path.cwd(),command_args[1] )
+            # tree_object_id = ObjectManager.create_tree(Path.cwd(),command_args[1] )
+            tree_object_id = ObjectManager.create_tree(Path.cwd())
             # print(command_args[1])
             # ObjectManager.set_commit_message(command_args[1])
 
+
+            # print("tree_object_id == ",tree_object_id)
+
+            if tree_object_id:
+                ObjectManager.store_snapshot_and_commit(tree_object_id,command_args[1])
+                BitTrackStaging.clear_staging_only_from_index()
+
         elif command == "log":
-            BitTrackLogs.show_commit_logs()
+            latest_commit_hash = BitTrackLogs.get_latest_commit()
+            BitTrackLogs.show_commit_logs(latest_commit_hash)
 
 
         else:

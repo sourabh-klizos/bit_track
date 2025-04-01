@@ -16,7 +16,7 @@ class BitIgnore:
             with ignore_path.open("r") as f:
                 for line in f:
                     line = line.strip()
-                    if line and not line.startswith("#"):  # Ignore comments
+                    if line and not line.startswith("#"): 
                         patterns.add(line)
         return patterns
 
