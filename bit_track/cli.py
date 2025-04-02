@@ -28,7 +28,6 @@ class BitTrackCLI:
         "commit": "Commit staged changes with a message (-m 'message')",
         "log": "Display the commit log (No arguments)",
         "revert": "Revert to a previous commit (<commit_hash>)",
-        "untracked": "Show untracked files (No arguments)",
         "help": "Display help information for available commands",
     }
 
