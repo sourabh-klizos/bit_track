@@ -53,7 +53,7 @@ class ObjectManager:
         # print(message, "args  ==========================================")
         ObjectManager.commit_message = message
 
-        # print(ObjectManager.commit_message, " cls val------------------------------------------------")
+        print(ObjectManager.commit_message, " cls val------------------------------------------------")
         return
 
     @staticmethod

@@ -1,48 +1,51 @@
 import argparse
-from bit_track.bit_track_repository import BitTrackRepository
-from bit_track.objects import ObjectManager
-import difflib
 import sys
 from pathlib import Path
-
+from colorama import Fore, Style, init
+from bit_track.bit_track_repository import BitTrackRepository
+from bit_track.objects import ObjectManager
 from bit_track.index import BitTrackAdd
 from bit_track.staging import BitTrackStaging
 from bit_track.commit_logs import BitTrackLogs
-
-import colorama
-from colorama import Fore, Style
-
-import argparse
-import sys
-import difflib
 from bit_track.revert import Revert
+import difflib
 
+# Initialize colorama
+init(autoreset=True)
 
 class BitTrackCLI:
     COMMANDS = {
-        "init": BitTrackRepository.init,
-        "add": ObjectManager.create_tree,
-        "cat-file -p": ObjectManager.read_object,
-        "status": BitTrackStaging.show_staging,
-        "reset": BitTrackStaging.clear_staging,
-        "logs": BitTrackLogs.show_commit_logs,
+        "init": "Initialize a new BitTrack repository (No arguments)",
+        "add": "Add all files to the staging area (No arguments)",
+        "cat-file": "Display the content of a stored object (-p <object_id>)",
+        "status": "Show the current staging status (No arguments)",
+        "reset": "Clear the staging area (No arguments)",
+        "commit": "Commit staged changes with a message (-m 'message')",
+        "log": "Display the commit log (No arguments)",
+        "revert": "Revert to a previous commit (<commit_hash>)",
     }
 
     @staticmethod
     def handle_command():
         parser = argparse.ArgumentParser(
-            description="BitTrack - A simple version control system"
+            description=Fore.CYAN + "BitTrack - A simple version control system" + Style.RESET_ALL,
+            formatter_class=argparse.RawTextHelpFormatter
         )
-        parser.add_argument("command", help="Command to execute")
-        parser.add_argument(
-            "args",
-            nargs=argparse.REMAINDER,
-            help="Additional arguments for the command",
-        )
+        command_help = "\n".join([f"{Fore.YELLOW}{cmd}{Style.RESET_ALL}: {Fore.GREEN}{desc}{Style.RESET_ALL}" for cmd, desc in BitTrackCLI.COMMANDS.items()])
+        parser.add_argument("command", help=f"{Fore.YELLOW}Command to execute{Style.RESET_ALL}\n\nAvailable commands:\n{command_help}")
+        # parser.add_argument("args", nargs=argparse.REMAINDER, help=Fore.GREEN + "Additional arguments for the command" + Style.RESET_ALL)
+
+        if len(sys.argv) == 1:
+            print(Fore.RED + "Error: No command provided!" + Style.RESET_ALL)
+            parser.print_help()
+            sys.exit(1)
 
         args = parser.parse_args()
         command = args.command.lower()
-        command_args = args.args  # Extra arguments after the command
+        command_args = args.args
+
+        print(Fore.BLUE + f"Command: {command}" + Style.RESET_ALL)
+        print(Fore.MAGENTA + f"Arguments: {command_args}" + Style.RESET_ALL)
 
         if command == "init":
             BitTrackRepository.init()
@@ -52,36 +55,25 @@ class BitTrackCLI:
 
         elif command == "cat-file":
             if len(command_args) != 2 or command_args[0] != "-p":
-                sys.stderr.write("Usage: bit_track cat-file -p <object_id>\n")
+                sys.stderr.write(Fore.RED + "Usage: bit_track cat-file -p <object_id>\n" + Style.RESET_ALL)
                 sys.exit(1)
-
             object_id = command_args[1]
             content = ObjectManager.read_object(object_id)
             if content:
-                # sys.stdout.write(content + "\n")
                 sys.stdout.write(Fore.GREEN + "Object Content:\n" + Style.RESET_ALL)
                 sys.stdout.write(Fore.YELLOW + content + "\n" + Style.RESET_ALL)
 
         elif command == "status":
-            BitTrackStaging.show_staging()  # Call the status function
+            BitTrackStaging.show_staging()
 
         elif command == "reset":
             BitTrackStaging.clear_staging()
 
         elif command == "commit":
             if len(command_args) != 2 or command_args[0] != "-m":
-                sys.stderr.write("Usage: bit_track commit -m 'example message' ")
-
+                sys.stderr.write(Fore.RED + "Usage: bit_track commit -m 'example message'\n" + Style.RESET_ALL)
                 sys.exit(1)
-            # print(Path.cwd())
-
-            # tree_object_id = ObjectManager.create_tree(Path.cwd(),command_args[1] )
             tree_object_id = ObjectManager.create_tree(Path.cwd())
-            # print(command_args[1])
-            # ObjectManager.set_commit_message(command_args[1])
-
-            # print("tree_object_id == ",tree_object_id)
-
             if tree_object_id:
                 ObjectManager.store_snapshot_and_commit(tree_object_id, command_args[1])
                 BitTrackStaging.clear_staging_only_from_index()
@@ -92,22 +84,17 @@ class BitTrackCLI:
 
         elif command == "revert":
             if len(command_args) != 1:
-                sys.stderr.write("Usage: bit_track commit -m 'example message' ")
-
+                sys.stderr.write(Fore.RED + "Usage: bit_track revert <commit_hash>\n" + Style.RESET_ALL)
+                sys.exit(1)
             commit_hash = command_args[0]
-            print("commit hash", commit_hash)
             if commit_hash:
                 Revert.revert_to_old_tree(commit_hash)
-                
-
-
 
         else:
-            suggestions = difflib.get_close_matches(
-                command, BitTrackCLI.COMMANDS.keys()
-            )
-            suggestion_text = (
-                f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
-            )
-            sys.stderr.write(f"Error: Unknown command '{command}'.{suggestion_text}\n")
+            suggestions = difflib.get_close_matches(command, BitTrackCLI.COMMANDS.keys())
+            suggestion_text = f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
+            sys.stderr.write(Fore.RED + f"Error: Unknown command '{command}'.{suggestion_text}\n" + Style.RESET_ALL)
             sys.exit(1)
+
+if __name__ == "__main__":
+    BitTrackCLI.handle_command()
