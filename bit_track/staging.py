@@ -5,7 +5,11 @@ import os
 from bit_track.bit_track_repository import BitTrackRepository
 import colorama
 from colorama import Fore, Style
-from bit_track.objects import ObjectManager
+# from bit_track.objects import ObjectManager
+from bit_track.utils.file_handler import FileHandler
+
+from bit_track.bit_ignore import BitIgnore
+import hashlib
 
 class BitTrackStaging:
     """Handles staging operations for BitTrack."""
@@ -101,6 +105,9 @@ class BitTrackStaging:
                 f"{Fore.MAGENTA}{path}{Style.RESET_ALL}\n"
             )
 
+
+
+
         
 
     @staticmethod
@@ -188,7 +195,15 @@ class BitTrackStaging:
         # sys.stdout.write("Staging area cleared, but objects are retained.\n")
 
 
-    @staticmethod
-    def untracked_files():
-        blob_hash = ObjectManager.create_tree()
-        
+    
+
+
+
+
+
+
+
+
+
+
+

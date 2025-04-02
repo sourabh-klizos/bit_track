@@ -1,17 +1,24 @@
 import argparse
-import sys
-from pathlib import Path
-from colorama import Fore, Style, init
 from bit_track.bit_track_repository import BitTrackRepository
 from bit_track.objects import ObjectManager
+import difflib
+import sys
+from pathlib import Path
+
 from bit_track.index import BitTrackAdd
 from bit_track.staging import BitTrackStaging
 from bit_track.commit_logs import BitTrackLogs
-from bit_track.revert import Revert
-import difflib
 
-# Initialize colorama
-init(autoreset=True)
+import colorama
+from colorama import Fore, Style
+
+import argparse
+import sys
+import difflib
+from bit_track.revert import Revert
+
+
+
 
 class BitTrackCLI:
     COMMANDS = {
@@ -23,6 +30,8 @@ class BitTrackCLI:
         "commit": "Commit staged changes with a message (-m 'message')",
         "log": "Display the commit log (No arguments)",
         "revert": "Revert to a previous commit (<commit_hash>)",
+        "untracked": "Show untracked files (No arguments)",
+        "help": "Display help information for available commands"
     }
 
     @staticmethod
@@ -31,21 +40,23 @@ class BitTrackCLI:
             description=Fore.CYAN + "BitTrack - A simple version control system" + Style.RESET_ALL,
             formatter_class=argparse.RawTextHelpFormatter
         )
-        command_help = "\n".join([f"{Fore.YELLOW}{cmd}{Style.RESET_ALL}: {Fore.GREEN}{desc}{Style.RESET_ALL}" for cmd, desc in BitTrackCLI.COMMANDS.items()])
-        parser.add_argument("command", help=f"{Fore.YELLOW}Command to execute{Style.RESET_ALL}\n\nAvailable commands:\n{command_help}")
-        # parser.add_argument("args", nargs=argparse.REMAINDER, help=Fore.GREEN + "Additional arguments for the command" + Style.RESET_ALL)
+        parser.add_argument("command", help=f"{Fore.YELLOW}Command to execute{Style.RESET_ALL}")
+        parser.add_argument("args", nargs=argparse.REMAINDER, help=Fore.GREEN + "Additional arguments for the command" + Style.RESET_ALL)
 
         if len(sys.argv) == 1:
             print(Fore.RED + "Error: No command provided!" + Style.RESET_ALL)
             parser.print_help()
             sys.exit(1)
 
+        if "--help" in sys.argv or "-h" in sys.argv:
+            print(Fore.CYAN + "Available Commands:" + Style.RESET_ALL)
+            for cmd, desc in BitTrackCLI.COMMANDS.items():
+                print(Fore.YELLOW + f"{cmd}: " + Fore.GREEN + desc + Style.RESET_ALL)
+            sys.exit(0)
+
         args = parser.parse_args()
         command = args.command.lower()
         command_args = args.args
-
-        print(Fore.BLUE + f"Command: {command}" + Style.RESET_ALL)
-        print(Fore.MAGENTA + f"Arguments: {command_args}" + Style.RESET_ALL)
 
         if command == "init":
             BitTrackRepository.init()

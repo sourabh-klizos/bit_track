@@ -17,3 +17,4 @@ bit_track/
 .bitignore
 setup.py
 requirements.txt
+README.md
