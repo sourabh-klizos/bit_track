@@ -18,8 +18,6 @@ import difflib
 from bit_track.revert import Revert
 
 
-
-
 class BitTrackCLI:
     COMMANDS = {
         "init": "Initialize a new BitTrack repository (No arguments)",
@@ -31,17 +29,25 @@ class BitTrackCLI:
         "log": "Display the commit log (No arguments)",
         "revert": "Revert to a previous commit (<commit_hash>)",
         "untracked": "Show untracked files (No arguments)",
-        "help": "Display help information for available commands"
+        "help": "Display help information for available commands",
     }
 
     @staticmethod
     def handle_command():
         parser = argparse.ArgumentParser(
-            description=Fore.CYAN + "BitTrack - A simple version control system" + Style.RESET_ALL,
-            formatter_class=argparse.RawTextHelpFormatter
+            description=Fore.CYAN
+            + "BitTrack - A simple version control system"
+            + Style.RESET_ALL,
+            formatter_class=argparse.RawTextHelpFormatter,
         )
-        parser.add_argument("command", help=f"{Fore.YELLOW}Command to execute{Style.RESET_ALL}")
-        parser.add_argument("args", nargs=argparse.REMAINDER, help=Fore.GREEN + "Additional arguments for the command" + Style.RESET_ALL)
+        parser.add_argument(
+            "command", help=f"{Fore.YELLOW}Command to execute{Style.RESET_ALL}"
+        )
+        parser.add_argument(
+            "args",
+            nargs=argparse.REMAINDER,
+            help=Fore.GREEN + "Additional arguments for the command" + Style.RESET_ALL,
+        )
 
         if len(sys.argv) == 1:
             print(Fore.RED + "Error: No command provided!" + Style.RESET_ALL)
@@ -66,7 +72,11 @@ class BitTrackCLI:
 
         elif command == "cat-file":
             if len(command_args) != 2 or command_args[0] != "-p":
-                sys.stderr.write(Fore.RED + "Usage: bit_track cat-file -p <object_id>\n" + Style.RESET_ALL)
+                sys.stderr.write(
+                    Fore.RED
+                    + "Usage: bit_track cat-file -p <object_id>\n"
+                    + Style.RESET_ALL
+                )
                 sys.exit(1)
             object_id = command_args[1]
             content = ObjectManager.read_object(object_id)
@@ -82,7 +92,11 @@ class BitTrackCLI:
 
         elif command == "commit":
             if len(command_args) != 2 or command_args[0] != "-m":
-                sys.stderr.write(Fore.RED + "Usage: bit_track commit -m 'example message'\n" + Style.RESET_ALL)
+                sys.stderr.write(
+                    Fore.RED
+                    + "Usage: bit_track commit -m 'example message'\n"
+                    + Style.RESET_ALL
+                )
                 sys.exit(1)
             tree_object_id = ObjectManager.create_tree(Path.cwd())
             if tree_object_id:
@@ -95,17 +109,30 @@ class BitTrackCLI:
 
         elif command == "revert":
             if len(command_args) != 1:
-                sys.stderr.write(Fore.RED + "Usage: bit_track revert <commit_hash>\n" + Style.RESET_ALL)
+                sys.stderr.write(
+                    Fore.RED
+                    + "Usage: bit_track revert <commit_hash>\n"
+                    + Style.RESET_ALL
+                )
                 sys.exit(1)
             commit_hash = command_args[0]
             if commit_hash:
                 Revert.revert_to_old_tree(commit_hash)
 
         else:
-            suggestions = difflib.get_close_matches(command, BitTrackCLI.COMMANDS.keys())
-            suggestion_text = f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
-            sys.stderr.write(Fore.RED + f"Error: Unknown command '{command}'.{suggestion_text}\n" + Style.RESET_ALL)
+            suggestions = difflib.get_close_matches(
+                command, BitTrackCLI.COMMANDS.keys()
+            )
+            suggestion_text = (
+                f" Did you mean: {', '.join(suggestions)}?" if suggestions else ""
+            )
+            sys.stderr.write(
+                Fore.RED
+                + f"Error: Unknown command '{command}'.{suggestion_text}\n"
+                + Style.RESET_ALL
+            )
             sys.exit(1)
+
 
 if __name__ == "__main__":
     BitTrackCLI.handle_command()
