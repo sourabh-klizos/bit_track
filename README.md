@@ -14,3 +14,25 @@ commit     # Commit staged changes with a message (-m 'message')
 log        # Display the commit log
 revert     # Revert to a previous commit (<commit_hash>)
 help       # Display help information for available commands
+```
+
+## Ignoring Files and Folders
+
+You can exclude specific files and folders from being tracked by creating a `.bitignore` file in your repository. Simply list the file and folder names you want to ignore inside this file, similar to `.gitignore` in Git.
+
+**Example:**
+
+```
+# Ignore log files  
+*.log  
+
+# Ignore temporary files  
+temp/  
+
+# Ignore a specific file  
+config.json  
+```
+
+bit_track/
+
+.gitignore
