@@ -13,5 +13,4 @@ reset      # Clear the staging area
 commit     # Commit staged changes with a message (-m 'message')
 log        # Display the commit log
 revert     # Revert to a previous commit (<commit_hash>)
-untracked  # Show untracked files
 help       # Display help information for available commands
